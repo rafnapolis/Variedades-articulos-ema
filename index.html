@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Variedades y Artículos EMA | Showroom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --turquesa: #209494;
+            --rosa: #E94E89;
+            --amarillo: #F9B317;
+        }
+        body { font-family: 'Poppins', sans-serif; }
+        .bg-turquesa { background-color: var(--turquesa); }
+        .text-turquesa { color: var(--turquesa); }
+        .border-rosa { border-color: var(--rosa); }
+        .btn-principal { 
+            background-color: var(--turquesa); 
+            transition: all 0.3s ease;
+        }
+        .btn-principal:hover { 
+            background-color: #1a7a7a; 
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+    <header class="bg-white shadow-md border-b-4 border-turquesa sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex flex-col items-center">
+            <h1 class="text-2xl font-bold tracking-tighter text-turquesa">VARIEDADES Y ARTÍCULOS EMA</h1>
+            <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold mt-1">Curaduría Exclusiva de AliExpress</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 mb-20">
+        <div id="showroom" class="space-y-12">
+            <div class="flex justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-turquesa"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200 py-8 text-center text-gray-400 text-xs">
+        <p>© 2026 Variedades y Artículos EMA</p>
+        <p class="mt-2">Precios sujetos a cambios en AliExpress</p>
+    </footer>
+
+    <script>
+        // CONFIGURACIÓN: Pega aquí tu Deep Link de Afiliado (el que sacaste del Ad Center)
+        const MI_DEEP_LINK_BASE = "https://s.click.aliexpress.com/e/_c3GaCv2D"; 
+
+        async function cargarProductos() {
+            const contenedor = document.getElementById('showroom');
+            try {
+                // Forzamos a que no use caché para ver los cambios del bot al instante
+                const response = await fetch('productos.json?v=' + new Date().getTime());
+                const data = await response.json();
+                
+                contenedor.innerHTML = '';
+
+                data.forEach(seccion => {
+                    let html = `
+                        <section>
+                            <div class="flex items-center mb-6">
+                                <div class="h-8 w-1 bg-turquesa mr-3 rounded-full"></div>
+                                <h2 class="text-xl font-bold text-gray-800">${seccion.coleccion}</h2>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">`;
+
+                    seccion.productos.forEach(prod => {
+                        // Construcción automática del Link de Afiliado
+                        const urlOriginal = `https://es.aliexpress.com/item/${prod.id}.html`;
+                        const linkAfiliado = `${MI_DEEP_LINK_BASE}&dl_target_url=${encodeURIComponent(urlOriginal)}`;
+
+                        html += `
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+                                <div class="relative">
+                                    <img src="${prod.imagen}" alt="Producto" class="w-full h-40 md:h-52 object-cover">
+                                    <span class="absolute top-2 right-2 bg-white/90 backdrop-blur px-2 py-1 rounded-lg text-[10px] font-bold text-rosa shadow-sm">
+                                        ✨ TOP
+                                    </span>
+                                </div>
+                                <div class="p-3 flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <h3 class="text-xs font-semibold text-gray-700 line-clamp-2 mb-1 leading-tight uppercase">
+                                            ${prod.nombre}
+                                        </h3>
+                                        <div class="flex items-center text-[#F9B317] text-[10px] mb-2">
+                                            ★★★★★ <span class="text-gray-300 ml-1">(4.9)</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-lg font-black text-turquesa mb-3">${prod.precio}</p>
+                                        <a href="${linkAfiliado}" target="_blank" 
+                                           class="btn-principal block w-full text-center text-white text-xs font-bold py-3 rounded-xl shadow-lg shadow-turquesa/20">
+                                            VER EN TIENDA
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>`;
+                    });
+                    html += `</div></section>`;
+                    contenedor.innerHTML += html;
+                });
+            } catch (error) {
+                contenedor.innerHTML = '<p class="text-center text-gray-400 py-10">Agrega productos desde Telegram para empezar...</p>';
+                console.error("Error cargando productos:", error);
+            }
+        }
+
+        cargarProductos();
+    </script>
+</body>
+</html>
