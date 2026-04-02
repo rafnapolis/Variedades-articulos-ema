@@ -1,0 +1,45 @@
+name: Telegram Sync EMA
+on:
+  repository_dispatch:
+    types: [nuevo_producto]
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Configurar Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Actualizar productos.json
+        run: |
+          PRODUCT_ID="${{ github.event.client_payload.id }}"
+          NOMBRE="${{ github.event.client_payload.nombre }}"
+          
+          node -e "
+            const fs = require('fs');
+            const path = './productos.json';
+            let data = JSON.parse(fs.readFileSync(path, 'utf8'));
+            
+            // Insertar el nuevo producto al inicio de la lista
+            data[0].productos.unshift({
+              id: '$PRODUCT_ID',
+              nombre: '$NOMBRE',
+              precio: 'Ver precio',
+              imagen: 'https://ae01.alicdn.com/kf/S5785002264634289873d6b1d550e504eE.jpg', 
+              link: ''
+            });
+            
+            fs.writeFileSync(path, JSON.stringify(data, null, 2));
+          "
+
+      - name: Subir cambios a la web
+        run: |
+          git config --global user.name 'EMA-Bot'
+          git config --global user.email 'bot@variedadesema.com'
+          git add productos.json
+          git commit -m "Nuevo producto de AliExpress: ${{ github.event.client_payload.id }}"
+          git push
